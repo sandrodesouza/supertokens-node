@@ -20,6 +20,13 @@ export declare class Querier {
     static reset(): void;
     getHostsAliveForTesting: () => Set<string>;
     static getNewInstanceOrThrowError(rIdToCore?: string): Querier;
+    static getNewCustomInstanceOrThrowError(
+        hosts: {
+            domain: NormalisedURLDomain;
+            basePath: NormalisedURLPath;
+        }[],
+        rIdToCore?: string
+    ): Querier;
     static init(
         hosts?: {
             domain: NormalisedURLDomain;

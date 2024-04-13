@@ -10,6 +10,7 @@ import RecipeUserId from "../../../recipeUserId";
 import { getPasswordResetLink } from "../utils";
 import { AuthUtils } from "../../../authUtils";
 import { isFakeEmail } from "../../thirdparty/utils";
+import AnomalyDetectionRecipe from "../../anomalydetection/recipe";
 
 export default function getAPIImplementation(): APIInterface {
     return {
@@ -630,12 +631,23 @@ export default function getAPIImplementation(): APIInterface {
                 checkCredentialsOnTenant,
             });
 
+            const anomalyDetection = AnomalyDetectionRecipe.getInstance();
+
             const isVerified = authenticatingUser !== undefined && authenticatingUser.loginMethod!.verified;
             // We check this before preAuthChecks, because that function assumes that if isSignUp is false,
             // then authenticatingUser is defined. While it wouldn't technically cause any problems with
             // the implementation of that function, this way we can guarantee that either isSignInAllowed or
             // isSignUpAllowed will be called as expected.
             if (authenticatingUser === undefined) {
+                // we will intercept this request in favor to detect brute force attacks
+                if (anomalyDetection !== undefined) {
+                    await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
+                        request: options.req,
+                        status: "WRONG_CREDENTIALS_ERROR",
+                        tenantId,
+                        action: "SIGN_IN",
+                    });
+                }
                 return {
                     status: "WRONG_CREDENTIALS_ERROR",
                 };
@@ -663,6 +675,15 @@ export default function getAPIImplementation(): APIInterface {
             }
 
             if (isFakeEmail(email) && preAuthChecks.isFirstFactor) {
+                // we will intercept this request in favor to detect brute force attacks
+                if (anomalyDetection !== undefined) {
+                    await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
+                        request: options.req,
+                        status: "WRONG_CREDENTIALS_ERROR",
+                        tenantId,
+                        action: "SIGN_IN",
+                    });
+                }
                 // Fake emails cannot be used as a first factor
                 return {
                     status: "WRONG_CREDENTIALS_ERROR",
@@ -676,6 +697,23 @@ export default function getAPIImplementation(): APIInterface {
                 tenantId,
                 userContext,
             });
+
+            if (anomalyDetection !== undefined) {
+                const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
+                    request: options.req,
+                    status: signInResponse.status,
+                    userId: "user" in signInResponse ? signInResponse.user.id : undefined,
+                    tenantId,
+                    action: "SIGN_IN",
+                });
+                if (anomalyDetectionResult.status === "ANOMALY_DETECTED") {
+                    return {
+                        status: "SIGN_IN_NOT_ALLOWED",
+                        // TODO-SAN: should we add more details here?
+                        reason: "ANOMALY_DETECTED",
+                    };
+                }
+            }
 
             if (signInResponse.status === "WRONG_CREDENTIALS_ERROR") {
                 return signInResponse;
@@ -807,6 +845,24 @@ export default function getAPIImplementation(): APIInterface {
                 session,
                 userContext,
             });
+
+            const anomalyDetection = AnomalyDetectionRecipe.getInstance();
+            if (anomalyDetection !== undefined) {
+                const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
+                    request: options.req,
+                    status: signUpResponse.status,
+                    userId: "user" in signUpResponse ? signUpResponse.user.id : undefined,
+                    tenantId,
+                    action: "SIGN_UP",
+                });
+                if (anomalyDetectionResult.status === "ANOMALY_DETECTED") {
+                    return {
+                        status: "SIGN_UP_NOT_ALLOWED",
+                        // TODO-SAN: should we add more details here?
+                        reason: "ANOMALY_DETECTED",
+                    };
+                }
+            }
 
             if (signUpResponse.status === "EMAIL_ALREADY_EXISTS_ERROR") {
                 return signUpResponse;

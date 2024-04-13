@@ -264,8 +264,8 @@ export default class Wrapper {
         | {
               status:
                   | "OK"
-                  | "UNKNOWN_USER_ID_ERROR"
                   | "EMAIL_ALREADY_EXISTS_ERROR"
+                  | "UNKNOWN_USER_ID_ERROR"
                   | "PHONE_NUMBER_ALREADY_EXISTS_ERROR";
           }
         | {
