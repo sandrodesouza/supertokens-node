@@ -4,8 +4,8 @@ import type { BaseRequest, BaseResponse } from "../../framework";
 import NormalisedURLDomain from "../../normalisedURLDomain";
 import NormalisedURLPath from "../../normalisedURLPath";
 export declare type TypeInput = {
-    basePath?: string;
-    domain?: string;
+    anomalyBasePath?: string;
+    anomalyDomain?: string;
     mode?: "BLOCK_ACCESS" | "REPORT_ONLY";
     override?: {
         functions?: (
@@ -16,8 +16,8 @@ export declare type TypeInput = {
     };
 };
 export declare type TypeNormalisedInput = {
-    domain: NormalisedURLDomain;
-    basePath: NormalisedURLPath;
+    anomalyDomain: NormalisedURLDomain;
+    anomalyBasePath: NormalisedURLPath;
     mode: "BLOCK_ACCESS" | "REPORT_ONLY";
     override: {
         functions: (

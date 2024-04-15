@@ -53,8 +53,8 @@ describe(`configTest: ${printPath("[test/anomaly-detection/config.test.js]")}`, 
 
         let config = anomalydetection.config;
         assert.equal(config.mode, "REPORT_ONLY");
-        assert.equal(config.basePath.value, "/api");
-        assert.equal(config.domain.value, "http://localhost:3002");
+        assert.equal(config.anomalyBasePath.value, "/api");
+        assert.equal(config.anomalyDomain.value, "http://localhost:3002");
     });
 
     it("test proper initialisation", async function () {

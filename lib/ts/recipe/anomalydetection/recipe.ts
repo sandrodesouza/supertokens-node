@@ -41,8 +41,8 @@ export default class Recipe extends RecipeModule {
         let querier = Querier.getNewCustomInstanceOrThrowError(
             [
                 {
-                    basePath: this.config.basePath,
-                    domain: this.config.domain,
+                    basePath: this.config.anomalyBasePath,
+                    domain: this.config.anomalyDomain,
                 },
             ],
             recipeId

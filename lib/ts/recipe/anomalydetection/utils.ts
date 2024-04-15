@@ -33,8 +33,8 @@ export function validateAndNormaliseUserInput(
     };
 
     return {
-        basePath: new NormalisedURLPath(config?.basePath ?? "/api"),
-        domain: new NormalisedURLDomain(config?.domain ?? "http://localhost:3002"),
+        anomalyBasePath: new NormalisedURLPath(config?.anomalyBasePath ?? "/api"),
+        anomalyDomain: new NormalisedURLDomain(config?.anomalyDomain ?? "http://localhost:3002"),
         mode: config?.mode ?? "REPORT_ONLY",
         override,
     };
