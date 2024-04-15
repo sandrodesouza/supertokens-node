@@ -44,11 +44,7 @@ declare type CheckAnomalyBaseRequest = {
           tenantId: string;
       }
     | {
-          status:
-              | "LINKING_TO_SESSION_USER_FAILED"
-              | "WRONG_CREDENTIALS_ERROR"
-              | "SIGN_IN_NOT_ALLOWED"
-              | "EMAIL_ALREADY_EXISTS_ERROR";
+          status: "ERROR";
           userId?: string;
           tenantId?: string;
       }

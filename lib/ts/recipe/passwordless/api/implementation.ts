@@ -253,7 +253,7 @@ export default function getAPIImplementation(): APIInterface {
             if (anomalyDetection !== undefined) {
                 const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
                     request: input.options.req,
-                    status: postAuthChecks.status,
+                    status: postAuthChecks.status === "OK" ? "OK" : "ERROR",
                     userId: (response.user ?? authenticatingUser!.user).id,
                     tenantId: input.tenantId,
                     action: isSignUp ? "SIGN_UP" : "SIGN_IN",

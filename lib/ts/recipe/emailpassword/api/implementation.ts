@@ -643,7 +643,7 @@ export default function getAPIImplementation(): APIInterface {
                 if (anomalyDetection !== undefined) {
                     await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
                         request: options.req,
-                        status: "WRONG_CREDENTIALS_ERROR",
+                        status: "ERROR",
                         tenantId,
                         action: "SIGN_IN",
                     });
@@ -679,7 +679,7 @@ export default function getAPIImplementation(): APIInterface {
                 if (anomalyDetection !== undefined) {
                     await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
                         request: options.req,
-                        status: "WRONG_CREDENTIALS_ERROR",
+                        status: "ERROR",
                         tenantId,
                         action: "SIGN_IN",
                     });
@@ -701,7 +701,7 @@ export default function getAPIImplementation(): APIInterface {
             if (anomalyDetection !== undefined) {
                 const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
                     request: options.req,
-                    status: signInResponse.status,
+                    status: signInResponse.status === "OK" ? "OK" : "ERROR",
                     userId: "user" in signInResponse ? signInResponse.user.id : undefined,
                     tenantId,
                     action: "SIGN_IN",
@@ -850,7 +850,7 @@ export default function getAPIImplementation(): APIInterface {
             if (anomalyDetection !== undefined) {
                 const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
                     request: options.req,
-                    status: signUpResponse.status,
+                    status: signUpResponse.status === "OK" ? "OK" : "ERROR",
                     userId: "user" in signUpResponse ? signUpResponse.user.id : undefined,
                     tenantId,
                     action: "SIGN_UP",
