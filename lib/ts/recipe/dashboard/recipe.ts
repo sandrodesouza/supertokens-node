@@ -344,6 +344,18 @@ export default class Recipe extends RecipeModule {
                 disabled: false,
                 method: "get",
             },
+            {
+                id: DASHBOARD_API,
+                pathWithoutApiBasePath: new NormalisedURLPath(getApiPathWithDashboardBase("/roles")),
+                disabled: false,
+                method: "get",
+            },
+            {
+                id: DASHBOARD_API,
+                pathWithoutApiBasePath: new NormalisedURLPath(getApiPathWithDashboardBase("/anomaly")),
+                disabled: false,
+                method: "get",
+            },
         ];
     };
 

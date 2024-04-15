@@ -17,9 +17,7 @@ import NormalisedURLDomain from "../../normalisedURLDomain";
 import NormalisedURLPath from "../../normalisedURLPath";
 import { NormalisedAppinfo } from "../../types";
 import Recipe from "./recipe";
-import { APIInterface, RecipeInterface, TypeInput, TypeNormalisedInput, DeviceHeaders } from "./types";
-import { BaseRequest } from "../../framework";
-import { getClientIp } from "./getClientIp";
+import { APIInterface, RecipeInterface, TypeInput, TypeNormalisedInput } from "./types";
 
 export function validateAndNormaliseUserInput(
     _: Recipe,
@@ -38,17 +36,4 @@ export function validateAndNormaliseUserInput(
         mode: config?.mode ?? "REPORT_ONLY",
         override,
     };
-}
-
-export function getDeviceHeadersFromRequest(req: BaseRequest): DeviceHeaders {
-    return {
-        accept: req.getHeaderValue("accept"),
-        language: req.getHeaderValue("accept-language"),
-        encoding: req.getHeaderValue("accept-encoding"),
-        userAgent: req.getHeaderValue("user-agent"),
-    };
-}
-
-export function getIpAddressFromRequest(req: BaseRequest) {
-    return getClientIp(req);
 }

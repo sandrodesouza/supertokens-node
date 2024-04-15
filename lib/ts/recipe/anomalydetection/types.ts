@@ -72,8 +72,7 @@ type CheckAnomalyBaseRequest = {
 export type RecipeInterface = {
     checkAnomaly: (
         input: {
-            ipAddress?: string;
-            headers?: DeviceHeaders;
+            headers: { [key: string]: string | string[] | undefined };
         } & CheckAnomalyBaseRequest
     ) => Promise<
         | {
@@ -95,15 +94,7 @@ export type RecipeInterface = {
               status: "ANOMALY_DETECTED";
           }
     >;
-    getIpAddressFromRequest: (input: { request: BaseRequest }) => string | undefined;
-    getDeviceHeadersFromRequest: (input: { request: BaseRequest }) => DeviceHeaders | undefined;
+    getHeadersFromRequest: (input: { request: BaseRequest }) => { [key: string]: string | string[] | undefined };
 };
 
 export type APIInterface = {};
-
-export type DeviceHeaders = {
-    accept?: string;
-    language?: string;
-    encoding?: string;
-    userAgent?: string;
-};

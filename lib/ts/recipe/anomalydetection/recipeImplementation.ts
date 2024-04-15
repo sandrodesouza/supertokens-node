@@ -16,23 +16,13 @@
 import NormalisedURLPath from "../../normalisedURLPath";
 import { CustomQuerier } from "./customQuerier";
 import { RecipeInterface, TypeNormalisedInput } from "./types";
-import { getDeviceHeadersFromRequest, getIpAddressFromRequest } from "./utils";
 
 export default function getRecipeInterface(querier: CustomQuerier, config: TypeNormalisedInput): RecipeInterface {
     return {
-        checkAnomaly: async function ({ ipAddress, headers, ...rest }) {
-            if (!ipAddress && !headers) {
-                // no headers or ip address, so we can't check for anomaly
-                return { status: "OK" };
-            }
-
+        checkAnomaly: async function (input) {
             let response = await querier.sendPostRequest(
                 new NormalisedURLPath("/anomaly/check").getAsStringDangerous(),
-                {
-                    ipAddress,
-                    headers,
-                    ...rest,
-                }
+                input
             );
 
             if (response.status === "OK") {
@@ -46,11 +36,14 @@ export default function getRecipeInterface(querier: CustomQuerier, config: TypeN
             }
         },
         checkAnomalyWithRequest: async function ({ request, ...rest }) {
-            const headers = (this as RecipeInterface).getDeviceHeadersFromRequest({ request });
-            const ipAddress = (this as RecipeInterface).getIpAddressFromRequest({ request });
+            const headers = (this as RecipeInterface).getHeadersFromRequest({ request });
+            if (headers === undefined) {
+                // nothing to check
+                return { status: "OK" };
+            }
             const result = await (this as RecipeInterface).checkAnomaly({
+                // @ts-ignore (we have an if check above to make sure one of them is defined)
                 headers,
-                ipAddress,
                 ...rest,
             });
             if (config.mode === "REPORT_ONLY") {
@@ -60,11 +53,8 @@ export default function getRecipeInterface(querier: CustomQuerier, config: TypeN
             }
             return result;
         },
-        getIpAddressFromRequest: function ({ request }) {
-            return getIpAddressFromRequest(request);
-        },
-        getDeviceHeadersFromRequest: function ({ request }) {
-            return getDeviceHeadersFromRequest(request);
+        getHeadersFromRequest: function ({ request }) {
+            return request.original.headers;
         },
     };
 }
