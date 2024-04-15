@@ -14,12 +14,11 @@
  */
 
 import NormalisedURLPath from "../../normalisedURLPath";
-import { Querier } from "../../querier";
-import { UserContext } from "../../types";
+import { CustomQuerier } from "./customQuerier";
 import { RecipeInterface, TypeNormalisedInput } from "./types";
 import { getDeviceHeadersFromRequest, getIpAddressFromRequest } from "./utils";
 
-export default function getRecipeInterface(querier: Querier, config: TypeNormalisedInput): RecipeInterface {
+export default function getRecipeInterface(querier: CustomQuerier, config: TypeNormalisedInput): RecipeInterface {
     return {
         checkAnomaly: async function ({ ipAddress, headers, ...rest }) {
             if (!ipAddress && !headers) {
@@ -28,13 +27,12 @@ export default function getRecipeInterface(querier: Querier, config: TypeNormali
             }
 
             let response = await querier.sendPostRequest(
-                new NormalisedURLPath("/anomaly/check"),
+                new NormalisedURLPath("/anomaly/check").getAsStringDangerous(),
                 {
                     ipAddress,
                     headers,
                     ...rest,
-                },
-                {} as UserContext
+                }
             );
 
             if (response.status === "OK") {

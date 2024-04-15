@@ -17,9 +17,9 @@ import OverrideableBuilder from "supertokens-js-override";
 import { default as SuperTokensError, default as error } from "../../error";
 import type { BaseRequest, BaseResponse } from "../../framework";
 import { default as normalisedURLPath } from "../../normalisedURLPath";
-import { Querier } from "../../querier";
 import RecipeModule from "../../recipeModule";
 import { APIHandled, HTTPMethod, NormalisedAppinfo, RecipeListFunction, UserContext } from "../../types";
+import { CustomQuerier } from "./customQuerier";
 import RecipeImplementation from "./recipeImplementation";
 import { RecipeInterface, TypeInput, TypeNormalisedInput } from "./types";
 import { validateAndNormaliseUserInput } from "./utils";
@@ -37,16 +37,10 @@ export default class Recipe extends RecipeModule {
         this.config = validateAndNormaliseUserInput(this, appInfo, config);
         this.isInServerlessEnv = isInServerlessEnv;
 
-        // TODO-SAN: we may need to implement a new querier instead of reusing this one
-        let querier = Querier.getNewCustomInstanceOrThrowError(
-            [
-                {
-                    basePath: this.config.anomalyBasePath,
-                    domain: this.config.anomalyDomain,
-                },
-            ],
-            recipeId
-        );
+        let querier = new CustomQuerier({
+            basePath: this.config.anomalyBasePath.getAsStringDangerous(),
+            domain: this.config.anomalyDomain.getAsStringDangerous(),
+        });
         {
             let builder = new OverrideableBuilder(RecipeImplementation(querier, this.config));
             this.recipeInterfaceImpl = builder.override(this.config.override.functions).build();

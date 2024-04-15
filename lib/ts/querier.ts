@@ -103,16 +103,6 @@ export class Querier {
         return new Querier(Querier.hosts, rIdToCore);
     }
 
-    static getNewCustomInstanceOrThrowError(
-        hosts: { domain: NormalisedURLDomain; basePath: NormalisedURLPath }[],
-        rIdToCore?: string
-    ): Querier {
-        if (!Querier.initCalled) {
-            throw Error("Please call the supertokens.init function before using SuperTokens");
-        }
-        return new Querier(hosts, rIdToCore);
-    }
-
     static init(
         hosts?: { domain: NormalisedURLDomain; basePath: NormalisedURLPath }[],
         apiKey?: string,
