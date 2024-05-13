@@ -10,6 +10,7 @@ import { SessionContainerInterface } from "../../session/types";
 import { UserContext } from "../../../types";
 import { LoginMethod, User } from "../../../user";
 import SessionError from "../../session/error";
+import AnomalyDetectionRecipe from "../../anomalydetection/recipe";
 
 export default function getAPIImplementation(): APIInterface {
     return {
@@ -247,6 +248,24 @@ export default function getAPIImplementation(): APIInterface {
                 userContext: input.userContext,
                 session: input.session,
             });
+
+            const anomalyDetection = AnomalyDetectionRecipe.getInstance();
+            if (anomalyDetection !== undefined) {
+                const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
+                    request: input.options.req,
+                    status: postAuthChecks.status === "OK" ? "OK" : "ERROR",
+                    userId: (response.user ?? authenticatingUser!.user).id,
+                    tenantId: input.tenantId,
+                    action: isSignUp ? "SIGN_UP" : "SIGN_IN",
+                });
+                if (anomalyDetectionResult.status === "ANOMALY_DETECTED") {
+                    return {
+                        status: "SIGN_IN_UP_NOT_ALLOWED",
+                        // TODO-SAN: should we add more details here?
+                        reason: "ANOMALY_DETECTED",
+                    };
+                }
+            }
 
             if (postAuthChecks.status !== "OK") {
                 return AuthUtils.getErrorStatusResponseWithReason(

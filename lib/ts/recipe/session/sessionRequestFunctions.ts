@@ -24,6 +24,7 @@ import { validateAccessTokenStructure } from "./accessToken";
 import { NormalisedAppinfo, UserContext } from "../../types";
 import SessionError from "./error";
 import RecipeUserId from "../../recipeUserId";
+import AnomalyDetectionRecipe from "../anomalydetection/recipe";
 
 // We are defining this here (and not exporting it) to reduce the scope of legacy code
 const LEGACY_ID_REFRESH_TOKEN_COOKIE_NAME = "sIdRefreshToken";
@@ -325,6 +326,28 @@ export async function refreshSessionInRequest({
         }
         throw ex;
     }
+
+    // TODO-SAN: should we check for anomaly detection here, what about performance?
+    const anomalyDetection = AnomalyDetectionRecipe.getInstance();
+    if (anomalyDetection !== undefined) {
+        const anomalyDetectionResult = await anomalyDetection.recipeInterfaceImpl.checkAnomalyWithRequest({
+            request: req,
+            // TODO-SAN: assuming status is OK, should we check?
+            status: "OK",
+            userId: session.getUserId(),
+            tenantId: session.getTenantId(),
+            action: "REFRESH_TOKEN",
+        });
+        if (anomalyDetectionResult.status === "ANOMALY_DETECTED") {
+            // TODO-SAN: should we throw exception or return status not OK?
+            throw new SessionError({
+                // TODO-SAN: should we add more details here?
+                message: "Anomaly detected",
+                type: SessionError.UNAUTHORISED,
+            });
+        }
+    }
+
     logDebugMessage("refreshSession: Attaching refreshed session info as " + requestTransferMethod);
 
     // We clear the tokens in all token transfer methods we are not going to overwrite
